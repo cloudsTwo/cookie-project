@@ -1,4 +1,5 @@
 import {request} from './request'
+import qs from 'qs'
 
 // 寻找全部食谱
 export function findAllMenu(){
@@ -23,7 +24,7 @@ export function addMenu(menu){
     method:'Post',
     url:'/menu/addMenu',
     data:{
-      menu
+      menu:qs.stringify(menu)
     }
   })
 }
@@ -141,6 +142,26 @@ export function deleteMenu(mid){
   })
 }
 
+// 是否收藏
+export function loadIsCollect(uid,mid){
+  return request({
+    url:'/collect/isCollect',
+    params:{
+      uid,mid
+    }
+  })
+}
+
+// 改变收藏
+export function changeCollect(uid,mid){
+  return request({
+    url:'/collect/changeCollect',
+    params:{
+      uid,mid
+    }
+  })
+}
+
 // 查找收藏
 export function findCollect(uid,mid){
   return request({
@@ -207,6 +228,28 @@ export function deleteCollects(mid){
     url:'/collect/deleteCollects',
     params:{
       mid
+    }
+  })
+}
+
+// 添加食材
+export function addMmaterial(mmaterial){
+  return request({
+    method:'Post',
+    url:'/mmaterial/addMmaterial',
+    data:{
+      mmaterial:qs.stringify(mmaterial)
+    }
+  })
+}
+
+// 添加步骤
+export function addStep(mstep){
+  return request({
+    method:'Post',
+    url:'/mstep/addStep',
+    data:{
+      mstep:qs.stringify(mstep)
     }
   })
 }

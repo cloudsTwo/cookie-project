@@ -80,6 +80,7 @@ export default {
       },2000)
     },
 
+    // 前一张轮播图
     toFront(){
       clearInterval(this.timer)
       let sdiv = document.querySelector('#topSwiper')
@@ -96,6 +97,7 @@ export default {
       // }
     },
 
+    // 下一个轮播图
     toNext(){
       let sdiv = document.querySelector('#topSwiper')
       clearInterval(this.timer)
@@ -113,11 +115,13 @@ export default {
       // }
     },
 
+    // 搜索
     search(){
       this.$router.push('/menu')
+      
       setTimeout(()=>{
         this.$bus.$emit('search',this.searchText)
-      },1000)
+      },300)
     }
   }
 }

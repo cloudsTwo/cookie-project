@@ -1,7 +1,7 @@
 <template>
   <div id="foodMade">
     <top-bar currentModel="menu" activeStyle="active" class="topbar"/>
-    <made-steps :mid="mid" />
+    <made-steps :mid="mid" v-if="$store.state.user.uid" />
   </div>
 </template>
 
@@ -17,7 +17,8 @@ export default {
   },
   data(){
     return {
-      mid:parseInt(this.$route.query.mid)
+      mid:parseInt(this.$route.query.mid),
+      user:this.$store.state.user
     }
   },
   mounted(){

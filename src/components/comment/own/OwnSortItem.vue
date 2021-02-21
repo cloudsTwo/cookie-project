@@ -1,10 +1,11 @@
 <template>
   <div id="ownSortItem">
     <food-item v-for="(item,index) in menus" :mid="item.mid" :key="index">
-      <img slot="img" :src="item.desImg" alt="picture">
+      <el-image class="img" slot="img" :src="item.desImg" fit="contain"></el-image>
+
       <div class="name" slot="name">
         <h3>{{item.mname}}</h3>
-        <el-button type="danger" size="mini" @click="deleteMenu(item.mid)">删除</el-button>
+        <span class="del-btn" @click.stop="deleteMenu(item.mid)">删除</span>
       </div>
       <p slot="description">{{item.description}}</p>
     </food-item>
@@ -13,7 +14,7 @@
 </template>
 
 <script>
-import {deleteMenu,deleteMmaterials,deleteComments,deleteCollects,deleteSteps} from '@/network/menu.js'
+import {deleteMenu} from '@/network/menu.js'
 import FoodItem from '../../common/FoodItem'
 
 export default {
@@ -49,18 +50,13 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+          
           deleteMenu(mid).then(res => {
             this.menus.forEach((item,index) => {
               if(item.mid === mid){
                 this.menus.splice(index,1)
               }
             })
-          
-          deleteMmaterials(mid).then(res=>{}).catch(err => console.log(err))
-          deleteComments(mid).then(res=>{}).catch(err => console.log(err))
-          deleteSteps(mid).then(res=>{}).catch(err => console.log(err))
-          deleteCollects(mid).then(res=>{}).catch(err => console.log(err))
-
 
             this.$message({
               type: 'success',
@@ -85,6 +81,10 @@ export default {
 </script>
 
 <style scoped>
+h3{
+  margin:0;
+}
+
 #ownSortItem{
   margin:0 auto;
   display: flex;
@@ -93,9 +93,10 @@ export default {
   flex-wrap: wrap;
 }
 
-img{
+.img{
   width:220px;
   height:160px;
+  padding-bottom: 10px;
 }
 
 p{
@@ -106,12 +107,23 @@ p{
 }
 
 .name{
+  height:35px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.del{
+.del-btn{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+
+  height:20px;
+  width:50px;
+  margin-right:5px;
   color:red;
+  border-bottom: 1px solid rgb(199, 9, 9);
 }
+
 </style>

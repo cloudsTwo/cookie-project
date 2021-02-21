@@ -6,12 +6,14 @@
       <div class="menu-res-img">
         <el-upload
           class="menu-uploader"
-          action="https://jsonplaceholder.typicode.com/posts/"
+          action="http://localhost:8888/day07/menu/fileUpload"
           :show-file-list="false"
+          :limit="1"
+          :headers = "fileHeaders"
           :on-success="handleAvatarSuccess"
           :before-upload="beforeAvatarUpload">
 
-          <img v-if="imageUrl" :src="imageUrl" class="menu-img">
+          <img v-if="menuImg" :src="menuImg" class="menu-img">
           <i v-else class="el-icon-plus el-upload menu-uploader-icon"></i>
 
         </el-upload>
@@ -47,17 +49,20 @@
         <label>第{{index+1}}步：<input v-model="steps[index].description" type="text" placeholder="不需要填写步骤序号1、2、3..." /></label>
         
         <div class="step-img">
-          <el-upload
-            class="menu-uploader"
-            action="https://jsonplaceholder.typicode.com/posts/"
-            :show-file-list="false"
-            :on-success="handleAvatarSuccess"
-            :before-upload="beforeAvatarUpload">
+          <div @click="uploadStepIndex(index)" >
+            <el-upload
+              class="menu-uploader"
+              action="http://localhost:8888/day07/mstep/fileUpload"
+              :show-file-list="false"
+              :headers = "fileHeaders"
+              :on-success="handleStepSuccess"
+              :before-upload="beforeAvatarUpload">
 
-            <img v-if="imageUrl" :src="imageUrl" class="menu-img">
-            <i v-else class="el-icon-plus el-upload menu-uploader-icon"></i>
+              <img v-if="stepsImg[index]" :src="stepsImg[index]" class="menu-img">
+              <i v-else class="el-icon-plus el-upload menu-uploader-icon"></i>
 
-          </el-upload>
+            </el-upload>
+          </div>
           <p>添加步骤图</p>
         </div>
       </div>
@@ -113,6 +118,7 @@ export default {
   name:'AddMenuChildren',
   data() {
     return {
+      menuImg:'', // 食谱展示图
       imageUrl: '',
       menu:{},
       mid:0,
@@ -124,17 +130,31 @@ export default {
         }
       ],
       steps:[{description:''},{description:''},{description:''}],
-      steplength:3,
+      stepsImg:[],  // 步骤图
+      steplength:3, // 步骤数
+      currentStepPic:0, // 上传步骤图的位置
       inlength:1,  // 食材数量
+
+      fileHeaders:{ // 文件头
+        Authorization:localStorage.eleToken
+      }
     };
   },
   mounted(){
     
   },
   methods: {
-
+    // 食谱封面
     handleAvatarSuccess(res, file) {
-      this.imageUrl = URL.createObjectURL(file.raw);
+      this.menuImg = require("../../../assets/img/menu/" + file.name);
+      this.menu.desImg = file.name
+    },
+
+    // 步骤图
+    handleStepSuccess(res, file) {
+      // 给食谱步骤返回值
+      this.stepsImg.splice(this.currentStepPic, 0, require("../../../assets/img/menu/" + file.name));
+      this.steps[this.currentStepPic].imgUrl = file.name
     },
 
     beforeAvatarUpload(file) {
@@ -150,6 +170,7 @@ export default {
       return isJPG && isLt2M;
     },
 
+    // 增加食材
     addIngredients(){
       let ingre = {
           materialName:'',
@@ -161,6 +182,7 @@ export default {
       this.inlength= this.inlength + 1
     },
 
+    // 增加步骤
     addStep(){
       this.steps.push({description:''})
       this.steplength++
@@ -177,17 +199,11 @@ export default {
       }
     },
 
+    // 判断食谱基本信息
     checkMenu(){
       let reg = /\s+/
 
       this.menu.uid = this.$store.state.user.uid
-      this.menu.desImg = 'http://app-file.beitaichufang.com/img/310636AF348FC3F27D7F7C2040807A97/20180410/ejbs8CRP2a.jpg?x-oss-process=image/crop,x_4,y_4,w_842,h_561'
-
-      // 判断菜谱信息完整
-      if(Object.keys(this.menu).length < 5){
-        alert('请完整填写菜谱信息')
-        return
-      }
 
       for(let item in this.menu){
         if(reg.test(this.menu[item])){
@@ -196,26 +212,31 @@ export default {
         }
       }
 
-      axios.post('http://localhost:8888/day07/menu/addMenu',this.menu)
-        .then(res=>{
-          alert("菜谱发布成功")
-          this.getNewId()
-        })
-        .catch(err => {
-          alert("发布失败");
-          console.log(err);
-        })
-    },
+      (async () => {
+        try{
+          let res = await axios({
+            method:'post',
+            url:'http://localhost:8888/day07/menu/addMenu',
+            data:this.menu,
+            headers:{
+              Authorization:localStorage.eleToken,
+              timeout:5000,
+              'Content-Type': 'application/json',
+            }
+          })
 
-    getNewId(){
-      // 获得刚添加的mid
-      findLastMenu()
-      .then(res=>{
-        this.mid = res.mid
-        this.checkOther()
-      }).catch(err => {
-        console.log(err)
-      })
+          if(res.data.mid){ // 请求成功
+            this.menu = res.data;
+            this.mid = res.data.mid
+            this.checkOther();
+          }else{  // 失败
+            alert(res.data.msg);
+            return;
+          }
+        }catch(e){
+          console.log(e)
+        }
+      })()
     },
 
     checkOther(){
@@ -237,43 +258,62 @@ export default {
       this.steps.forEach((item,index)=>{
         item.mid = this.mid
         item.stepCount = index + 1
-        item.imgUrl = 'http://app-file.beitaichufang.com/img/310636AF348FC3F27D7F7C2040807A97/20180415/ikCsWNn2Jf.jpg'
 
         for(let i in item){
           if(reg.test(item[i]) || item[i] === ''){
-            alert('请完整填写步骤信息')
+            alert('请完成食谱步骤' + (i+1) + '')
             return
           }
         }
       })
 
-
+      // 添加其他食材信息
+      this.postOtherMenuInfo()
+    },
+    postOtherMenuInfo(){
+      // 上传材料
       this.ingredients.forEach(mmaterial => {
-        axios.post('http://localhost:8888/day07/mmaterial/addMmaterial',mmaterial)
-        .then(res=>{
-
-        })
-        .catch(err => {
-          alert("原料添加失败");
+        axios({
+          method:'post',
+          url:'http://localhost:8888/day07/mmaterial/addMmaterial',
+          data:mmaterial,
+          headers:{
+            Authorization:localStorage.eleToken,
+            timeout:5000,
+            'Content-Type': 'application/json',
+          }
+        }).catch(err => {
+          alert("食谱发布失败");
           console.log(err);
+          return
         })
       })
 
+      // 上传步骤
       this.steps.forEach(mstep => {
-        axios.post('http://localhost:8888/day07/mstep/addStep',mstep)
-        .then(res=>{
-
-        })
-        .catch(err => {
-          alert("原料添加失败");
+        axios({
+          method:'post',
+          url:'http://localhost:8888/day07/mstep/addStep',
+          data:mstep,
+          headers:{
+            Authorization:localStorage.eleToken,
+            timeout:5000,
+            'Content-Type': 'application/json',
+          }
+        }).catch(err => {
+          alert("食谱发布失败");
           console.log(err);
+          return;
         })
       })
-
      
       this.$router.replace('/menu')
-    }
+    },
 
+    // 获取当前上传的步骤下标
+    uploadStepIndex(index){
+      this.currentStepPic = index;
+    }
   }
 }
 </script>

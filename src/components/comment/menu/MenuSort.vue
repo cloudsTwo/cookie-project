@@ -9,19 +9,19 @@
             综合最佳
           </span>
           <div class="content">
-            <menu-sort-item :menus="bestMenus.slice((currentpage-1)*pagesize,currentpage*pagesize)" />
+            <menu-sort-item :newMenus="bestMenus.slice((currentpage-1)*pagesize,currentpage*pagesize)" />
           </div>
         </el-tab-pane>
         <el-tab-pane label="收藏最多" name="collectMost">
           <span slot="label" class="tab">收藏最多</span>
           <div class="content">
-            <menu-sort-item :menus="mostCollectMenus.slice((currentpage-1)*pagesize,currentpage*pagesize)" />
+            <menu-sort-item :newMenus="mostCollectMenus.slice((currentpage-1)*pagesize,currentpage*pagesize)" />
           </div>
         </el-tab-pane>
         <el-tab-pane label="浏览最多" name="watchMost">
           <span slot="label" class="tab">浏览最多</span>
           <div class="content">
-            <menu-sort-item :menus="mostViewsMenus.slice((currentpage-1)*pagesize,currentpage*pagesize)" />
+            <menu-sort-item :newMenus="mostViewsMenus.slice((currentpage-1)*pagesize,currentpage*pagesize)" />
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -66,67 +66,63 @@ export default {
       mostCollectMenus:[],  // 按收藏排序
       mostViewsMenus:[],  // 按浏览量排序
       searchText:'全部食谱',  // 搜索菜谱名
+      homeSearch:'',
     }
   },
   created(){
-    // 获得全部食谱
-    findAllMenu()
-    .then(res => {
-      // 初始化赋值
-      this.init(res)
-    }).catch(err => {
-      console.log(err)
-    })
+    
   },
   mounted(){
-    let the = this
+    this.selectedOrAll();
 
-    // 监听查找事件
-    this.$bus.$on('search',function(searchText){
-
-      the.searchText = searchText
-
-      // 若尚未获取数据
-      if(the.menus.length === 0){
-        setTimeout(() => {
-          findMenuByName(searchText)
-          .then(res => {
-            the.init(res)
-            // 综合排序
-          }).catch(err => {
-            console.log(err)
-          })
-        },1000)
-
-      }else{
-        // 搜索为空
-        if(searchText === ''){
-          the.searchText = '全部食谱'
-          
-          findAllMenu()
-          .then(res => {
-            // 初始化赋值
-            the.init(res)
-          }).catch(err => {
-            console.log(err)
-          })
-        }else{
-          findMenuByName(searchText)
-            .then(res => {
-              if(res.length === 0){
-                return
-              }else{
-                the.init(res)
-              }
-              // 综合排序
-            }).catch(err => {
-              console.log(err)
-            })
-          }
-        }
+    this.$bus.$on('search', (homeSearch) => {
+      // 获取首页传递的搜索信息
+      this.homeSearch = homeSearch;
+      this.selectedOrAll();
     })
   },
+  beforeDestroy(){
+    this.$bus.$off('search')
+  },
   methods:{
+    selectedOrAll(){
+      // 是搜索部分，查找食谱
+      if(this.homeSearch){
+
+        findMenuByName(this.homeSearch).then(res => {
+
+          if(res.data.length){ 
+            this.init(res.data)
+            this.searchText = this.homeSearch
+
+          }else{  // 没有找到该食谱
+            this.$message({
+              message: '未找到 ' + this.homeSearch + ' 食谱，换个关键词试试~',
+              type: 'warning'
+            });
+            this.searchText = "全部食谱"
+            this.loadAllMenus()
+          }
+          // 综合排序
+        }).catch(err => {
+          console.log(err)
+        })
+      }else{  // 不是搜索部分，显示全部食谱
+        this.searchText = "全部食谱"
+        this.loadAllMenus();
+      }
+    },
+
+    loadAllMenus(){
+      // 获得全部食谱
+      findAllMenu().then(res => {
+        // 初始化赋值
+        this.init(res.data)
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+
     init(res){
       this.menus = []
       this.bestMenus = []
@@ -194,13 +190,14 @@ export default {
     },
 
     handleClick(num) {
-      console.log(tab, event);
+
     },
 
     // 初始页currentPage、初始每页数据数pagesize和数据data
     handleSizeChange: function (size) {
       this.pagesize = size;
     },
+
     handleCurrentChange: function(currentpage){
       this.currentpage = currentpage;
     },

@@ -52,4 +52,15 @@ const router = new VueRouter({
   mode:'history'
 })
 
+
+/*路由守卫   根据登录获得token*/
+router.beforeEach((to,from,next) =>{
+  const isLogin = localStorage.eleToken ? true :false ;
+  if(to.path ==="/login" || to.path ==="/register"){
+    next();
+  }else{
+    isLogin ? next() :next("/login")   /*真跳转  假注册*/
+  }
+})
+
 export default router

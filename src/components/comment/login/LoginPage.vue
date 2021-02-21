@@ -101,8 +101,9 @@
 <script>
   import qs from 'qs'
   import axios from 'axios'
+  import jwt from 'jwt-decode';
 
-  import {Login} from '@/network/user.js'
+  import {Login,findOneUserById} from '@/network/user.js'
 
 
   export default {
@@ -125,29 +126,47 @@
     login() { 
 
       Login(this.users.name,this.users.password).then(res => {
-          if(res === ""){
-            alert('用户名或密码错误')
-          }else{
-            alert('登录成功')
-            this.$store.commit('login',res) // 改变为登录状态
-            console.log(this.$store.state.user)
-            this.$router.replace('/home')
+          console.log(res)
+          // 请求失败
+          if(!res.data){
+            alert("用户名或密码错误");
+            return
           }
+
+          const token = res.data.token;
+          const user = res.data.user;
+
+          /*存储到ls*/
+          localStorage.setItem('eleToken',token);
+          /*解析token中的信息*/
+          const decoded = jwt(token);
+          /*存储至vuex*/
+          this.$store.dispatch("setLogin",!this.isEmpty(decoded))  //decoded空，函数返回真，取反假
+          this.$store.dispatch("setUser",user)
+
+          /*跳转*/
+          this.$router.push('/home');
         })
         .catch(err => {
           console.log(err)
         });
     },
 
+    isEmpty(value){
+      return(
+          value ===undefined || value ===null ||
+          (typeof  value === "object" && Object.keys(value).length ===0) ||
+          (typeof value ==="string" && value.trim().length ===0)
+      );
+    },
 
-     jumpToList() {
+    jumpToList() {
       this.$router.push('/home')
     },
 
     toReg() {
       this.$router.push('/registered')
     },
-
 
   },
 

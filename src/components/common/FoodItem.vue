@@ -1,7 +1,9 @@
 <template>
-  <div id="foodItem">
-    <div class="img" @click="toMadePage">
-      <slot name="img"></slot>
+  <div id="foodItem"  @click="toMadePage">
+    <div class="img-box">
+      <div class="img">
+        <slot name="img"></slot>
+      </div>
     </div>
 
     <div class="title"><slot name="name"></slot></div>
@@ -55,7 +57,12 @@ p{
   text-overflow: ellipsis;
 }
 
-.img:hover{
-  transform: scale(1.2);
+.img-box{
+  overflow: hidden;
+}
+
+.img-box .img:hover{
+  transition: all 1s;
+  transform: scale(1.1);
 }
 </style>

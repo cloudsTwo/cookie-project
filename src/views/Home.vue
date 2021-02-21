@@ -1,7 +1,7 @@
 <template>
   <div id="home">
-    <top-bar currentModel="home" activeStyle="topBar" class="topbar"/>
-    <top-swiper/>
+    <top-bar currentModel="home" :activeStyle="topStatus" class="topbar"/>
+    <top-swiper />
 
     <day-menu-recom />
     <item2 />
@@ -29,9 +29,20 @@ export default {
   },
   data(){
     return{
+      topStatus:'topBar',
+    }
+  },
+  mounted(){
+    window.onscroll = () => {
+      if(window.pageYOffset > 400){
+        this.topStatus = 'active'
+      }else{
+        this.topStatus = 'topBar'
+      }
     }
   },
   methods:{
+
   }
 }
 </script>
@@ -46,7 +57,7 @@ export default {
   top:0;
   left:0;
   right:0;
-  z-index: 1;
+  z-index: 999;
 }
 
 .btimg{

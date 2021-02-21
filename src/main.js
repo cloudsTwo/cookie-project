@@ -12,9 +12,11 @@ Vue.config.productionTip = false
 
 Vue.prototype.$bus = new Vue()
 
+import cookie from './util/cookie'
+Vue.prototype.cookie = cookie
+
 new Vue({
   router,
   store,
-  mode:history,
   render: h => h(App)
 }).$mount('#app')

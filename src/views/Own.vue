@@ -1,7 +1,7 @@
 <template>
-  <div id="own">
+  <div id="own" v-if="$store.state.isLogin">
     <top-bar currentModel="own" activeStyle="active" class="topbar"/>
-    <own-info-page />
+    <own-info-page  v-if="$store.state.user.uid"/>
   </div>
 </template>
 
@@ -15,7 +15,12 @@ export default {
   components:{
     TopBar,
 
-    OwnInfoPage
+    OwnInfoPage,
+  },
+  beforeCreate(){
+    if(!this.$store.state.isLogin){
+      this.$router.replace('/login')
+    }
   }
 }
 </script>

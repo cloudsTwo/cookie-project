@@ -1,12 +1,11 @@
 <template>
-  <div id="madeSteps">
+  <div id="madeSteps" v-if="$store.state.user.uid">
     <div class="title">
       <span>食谱</span>
       <span>.{{menu.mname}}</span>
     </div>
 
-    <img class="topImg" :src="menu.desImg" />
-
+    <el-image class="topImg"  :src="menu.desImg" fit="contain"></el-image>
     <h2>{{menu.name}}</h2>
     <div class="attrs">
       <div>
@@ -18,8 +17,8 @@
       <div>
         <span><i class="el-icon-mobile-phone"></i>APP</span>
         <span><i class="el-icon-share"></i>分享</span>
-        <span v-if="!isCollect" @click="addCollect" style="color:grey" ><i style="color:grey" class="el-icon-collection-tag"></i>收藏</span>
-        <span v-else @click="cancelCollect"><i class="el-icon-collection-tag"></i>已收藏</span>
+        <span v-if="!isCollect" @click="onChangeCollect" style="color:grey" ><i style="color:grey" class="el-icon-collection-tag"></i>收藏</span>
+        <span v-else @click="onChangeCollect"><i class="el-icon-collection-tag"></i>已收藏</span>
       </div>
     </div>
 
@@ -27,11 +26,11 @@
 
     <div class="description">
       <div class="user">
-        <img :src="putUser.avatar" />
+        <el-avatar class="avatar" fit="contain" size="large" :src="putUser.avatar"></el-avatar>
         <h2>{{putUser.name}}</h2>
       </div>
 
-      <div>
+      <div class="des-word">
         {{menu.description}}
       </div>
     </div>
@@ -57,7 +56,7 @@
             <p>{{item.description}}</p>
           </td>
           <td>
-            <img :src="item.imgUrl" />
+            <el-image class="step-img"  :src="item.imgUrl" fit="contain"></el-image>
           </td>
         </tr>
       </table>
@@ -78,21 +77,21 @@
 
     <div class="user-comments" v-for="(item,index) in comments" :key="index">
       <div class="user-info">
-        <img :src="commentUsers[index]?commentUsers[index]['avatar']:''">
+        <img :src="item.user.avatar">
         <div>
-          <p>{{commentUsers[index]?commentUsers[index]['name']:''}}</p>
+          <p>{{item.user.name}}</p>
           <p>
-            <span>{{item.ctime}}</span>
+            <span>{{item.comment.ctime}}</span>
             <span>回复</span>
           </p>
         </div>
 
-        <el-button type="danger" style="margin-left:50%;" @click="deleteComment(item.cid)" 
-        v-show="$store.state.user.uid?$store.state.user.uid===commentUsers[index].uid:false">删除</el-button>
+        <el-button type="danger" style="margin-left:50%;" @click="deleteComment(item.comment.cid)" 
+        v-show="$store.state.user.uid?$store.state.user.uid===item.user.uid:false">删除</el-button>
       </div>
 
       <div class="comment-content">
-        {{item.ccontent}}
+        {{item.comment.ccontent}}
       </div>
 
       <el-divider />
@@ -105,7 +104,7 @@ import axios from 'axios'
 
 import {findMenuById,findMmaterial,findSteps,findMenuComment,
   addMenuComment,deleteCommentById,changeMenuView,changeMenuCollect,
-  findCollect,findCollectByUser,cancelCollect} from '@/network/menu.js'
+  loadIsCollect, changeCollect} from '@/network/menu.js'
 import {findOneUserById} from '@/network/user.js'
 
 
@@ -118,7 +117,6 @@ export default {
       ingredients:[],
       steps:[],
       comments:[],
-      commentUsers:[],
 
       comment:{
         cid:0,
@@ -134,82 +132,49 @@ export default {
   props:{
     mid:Number
   },
-  created(){
-    // 查看收藏信息
-    if(this.$store.state.isLogin){
-     let uid = this.$store.state.user.uid
-
-     findCollect(uid,this.mid).then(res=> {
-       if(res === ''){
-         this.isCollect = false
-       }else{
-         this.isCollect = true
-       }
-     }).then(err => {
-       console.log('err' + err)
-     })
-    }
-
-    // 菜谱基本信息
-    findMenuById(this.mid).then(res => {
-      this.menu = res
-
-      changeMenuView(this.menu.views + 1,this.menu.mid)
-        .then(res => {
-          
-        }).catch(err => {
-          console.log(err)
-        })
-
-      findOneUserById(this.menu.uid)
-        .then(res => {
-          this.putUser = res
-        }).catch(err => {
-          console.log(err)
-        })
-
-    }).catch(err => {
-      console.log(err)
-    })
-
-    // 食材信息
-    findMmaterial(this.mid).then(res => {
-      this.ingredients = res
-    }).catch(err => {
-      console.log(err)
-    })
-
-    // 菜谱步骤
-    findSteps(this.mid).then(res => {
-      this.steps = res
-      this.steps = this.steps.sort(function(a,b){
-        return a.stepCount - b.stepCount
-      })
-    }).catch(err => {
-      console.log(err)
-    })
-
-    // 菜谱评论
-    findMenuComment(this.mid).then(res => {
-      this.comments = res
-      this.getCommentUsers()
-    }).catch(err => {
-      console.log(err)
-    })
+  mounted(){
+    this.loadPageData()
   },
-
   methods:{
-    getCommentUsers(){
-       // 评论用户信息
-      for(let i = 0; i < this.comments.length; i++){
+    loadPageData(){
+      // 查看收藏信息
+      if(this.$store.state.isLogin){
+        // 防止用户信息获取延迟
+        let uid = this.$store.state.user.uid
 
-        findOneUserById(this.comments[i].uid)
-        .then(res => {
-          this.commentUsers.push(res)
+        loadIsCollect(uid,this.mid).then(res=> {
+          this.isCollect = res.data;
         }).catch(err => {
-          console.log(err)
+          console.log('err:' + err)
         })
       }
+
+      let _this = this;
+
+      (async() => {
+        try{
+          // 菜谱基本信息
+          let menuInfo = (await findMenuById(_this.mid)).data
+          _this.menu = menuInfo.menu;
+          _this.menu.desImg =  _this.menu.desImg.indexOf('http') === -1 ? require('../../../assets/img/menu/' + _this.menu.desImg) : _this.menu.desImg;
+          _this.putUser = menuInfo.user
+          // 食材信息
+          _this.ingredients = menuInfo.materials
+          // 菜谱步骤
+          _this.steps = menuInfo.steps
+          _this.steps = _this.steps.sort(function(a,b){
+            return a.stepCount - b.stepCount
+          })
+
+          _this.steps.map((item, index)=> {
+            item.imgUrl =  item.imgUrl.indexOf('http') === -1 ? require('../../../assets/img/menu/' + item.imgUrl) : item.imgUrl;
+          })
+          // 菜谱评论
+          _this.comments = (await findMenuComment(_this.mid)).data
+        }catch(e){
+
+        }
+      })()
     },
 
     addComment(){
@@ -244,33 +209,42 @@ export default {
       //   console.log(err)
       // })
 
-      axios.post('http://localhost:8888/day07/comment/addComment',this.comment)
-        .then(res=>{
-          alert('评论成功')
-          // 菜谱评论
-          // findMenuComment(this.mid).then(res => {
-          //   this.comments = res
-          //   this.getCommentUsers()
-          // }).catch(err => {
-          //   console.log(err)
-          // })
-
-          this.comments.unshift(this.comment)
-          this.commentUsers.unshift(this.$store.state.user)
-        })
-        .catch(err => {
-          alert("评论失败");
-          console.log(err);
-        })
+      axios({
+        method:'post',
+        url:'http://localhost:8888/day07/comment/addComment',
+        data:this.comment,
+        headers:{
+          Authorization:localStorage.eleToken,
+          timeout:5000,
+          'Content-Type': 'application/json',
+        }
+      }).then(res=>{
+        alert('评论成功')
+        let item = {
+          comment:this.comment,
+          user:this.$store.state.user
+        }
+        
+        this.comment = {  // 重新赋值
+          cid:0,
+          uid:0,
+          mid:0,
+          ccontent:'',
+          ctime:''
+        }, // 新评论
+        this.comments.unshift(item);
+      })
+      .catch(err => {
+        alert("评论失败");
+        console.log(err);
+      })
     },
 
     deleteComment(cid){
-      deleteCommentById(cid)
-      .then(res => {
+      deleteCommentById(cid).then(res => {
         this.comments.forEach((item,index) => {
-          if(item.cid === cid){
+          if(item.comment.cid === cid){
             this.comments.splice(index,1)
-            this.commentUsers.splice(index,1)
           }
         })
 
@@ -280,37 +254,20 @@ export default {
       })
     },
 
-    addCollect(){
+    onChangeCollect(){
       if(!this.$store.state.isLogin){
         alert('请先登录账号')
         return
       }
 
-      let collect = {
-        uid:this.$store.state.user.uid,
-        mid:this.mid,
-        time:''
-      }
-
-      axios.post('http://localhost:8888/day07/collect/addCollect',collect)
-        .then(res=>{
-          this.isCollect=true
-        })
-        .catch(err => {
-          console.log(err);
-        })
+      changeCollect(this.$store.state.user.uid, this.mid).then(res=>{
+        this.isCollect = res.data;
+      })
+      .catch(err => {
+        console.log(err);
+      })
 
     },
-
-    cancelCollect(){
-      let uid = this.$store.state.user.uid
-
-      cancelCollect(uid,this.mid).then(res => {
-        this.isCollect = false
-      }).catch(err => {
-        console.log(err)
-      })
-    }
   }
 }
 </script>
@@ -350,7 +307,11 @@ export default {
 }
 
 .topImg{
-  width:90%;
+  width:100%;
+  height:400px;
+
+  display: flex;
+  justify-content: center;
   padding:15px 0;
 }
 
@@ -359,16 +320,21 @@ export default {
   padding:10px;
 }
 
-.user img{
-  margin-right:30px;
-  width:80px;
-  height:80px;
-  border-radius:50%;
+.user .avatar{
+  display: flex;
+  justify-content: center;
+
+  margin-right:20px;
+  width:90px;
+  height:90px;
+  border:2px solid rgb(255, 153, 0);
 }
 
-.description :nth-last-child(1){
+.description .des-word{
   font-size: 18px;
   line-height: 30px;
+  padding-top:20px;
+  padding-left:10px;
 }
 
 .ingredients{
@@ -376,7 +342,7 @@ export default {
 }
 
 .ingredients table{
-  width:50%;
+  width:100%;
   text-align: left;
 }
 
@@ -390,7 +356,8 @@ export default {
   width:10%;
 }
 
-.steps img{
+.steps .step-img{
+  background: rgb(218, 252, 168);
   width:300px;
   height:200px;
 }

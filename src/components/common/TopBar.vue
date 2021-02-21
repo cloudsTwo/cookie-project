@@ -27,7 +27,7 @@
 
     </div>
 
-    <el-divider v-if="activeStyle === 'active'" />
+    <el-divider class="divider" v-if="activeStyle === 'active'" />
   </div>
 </template>
 
@@ -96,30 +96,34 @@ export default {
 <style scoped>
 
 .el-divider--horizontal{
-  margin:10px 0 2px;
+  margin:0;
 }
 
 #topBar,#active{
   margin:0 auto;
-  display: flex;
   width:80%;
   min-width: 1024px;
+
+  display: flex;
   justify-content: space-around;
   align-items: center;
+
   font-size: 15px;
-  padding:20px 40px 10px;
-  z-index: 10;
+  padding:20px 10%;
+  z-index: 999;
   opacity:1;
 }
 
 #active{
-  background: white;
+  background-color: white;
   opacity: 1;
   color:black;
 }
 
 #topBar{
   color:white;
+  box-shadow: 0 0 10px grey;
+  background-color: rgba(204, 204, 207, 0.5);
 }
 
 .logo{

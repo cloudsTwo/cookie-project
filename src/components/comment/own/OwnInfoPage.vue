@@ -2,7 +2,7 @@
   <div id="ownInfoPage">
     <div class="common-info">
       <div class="base">
-        <img :src="user.avatar" alt="头像">
+        <el-avatar class="avatar" fit="contain" size="large" :src="user.avatar" ></el-avatar>
       </div>
 
       <div>
@@ -17,14 +17,14 @@
 
     <div>
 
-      <el-tabs type="border-card" class="pane">
+      <el-tabs type="border-card" class="pane" @tab-click="loadCollectMenus">
         <el-tab-pane>
           <span slot="label"><i class="el-icon-date"></i> 我的发布</span>
           <own-sort-item :menus="putMenus" />
         </el-tab-pane>
         <el-tab-pane label="我的收藏">
           <span slot="label"><i class="el-icon-collection-tag"></i> 我的收藏</span>
-          <menu-sort-item :menus="collectMenus" />
+          <menu-sort-item :newMenus="collectMenus" />
         </el-tab-pane>
       </el-tabs>
       
@@ -56,24 +56,32 @@ export default {
   created(){
     this.user = this.$store.state.user
 
-    findMenuByUser(this.user.uid).then(res => {
-      this.putMenus = res
-    }).catch(err => {
-      console.log(err)
-    })
+    this.loadPostMenus();
+    this.loadCollectMenus();
+  },
+  methods:{
 
-
-    findCollectByUser(this.user.uid).then(res => {
-      res.forEach((item,index) => {
-        findMenuById(item.mid).then(res=> {
-          this.collectMenus.push(res)
-        }).catch(err => {
-          console.log(err)
-        })
+    loadPostMenus(){
+      // 发布的食谱
+      findMenuByUser(this.user.uid).then(res => {
+        this.putMenus = res.data
+      }).catch(err => {
+        console.log(err)
       })
-    }).catch(err => {
-      console.log(err)
-    })
+    },
+
+    loadCollectMenus(){
+      // 收藏的食谱
+      findCollectByUser(this.user.uid).then(res => {
+        
+        // 如果有数据
+        if(res.data?.length){
+          this.collectMenus = res.data;
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+    }
   }
 }
 </script>
@@ -95,10 +103,13 @@ export default {
     padding-right:30px;
   }
 
-  .base img{
+  .base .avatar{
+    display: flex;
+    justify-content: center;
+    padding:0;
+    border:5px solid rgb(255, 153, 0);
     height:150px;
     width:150px;
-    border-radius: 50%;
   }
 
   .common-info p{
