@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasoft.mapper.OrderMapper">
+
+	<select id="findAllOrder" resultType="com.chinasoft.pojo.Order">
+		select * from `order`
+	</select>
+
+	<select id="findOrderById" parameterType="java.lang.Integer" resultType="com.chinasoft.pojo.Order">
+		select * from `order` where oid=#{oid}
+	</select>
+	
+	<select id="findOrderByOrderNum" parameterType="java.lang.String" resultType="com.chinasoft.pojo.Order">
+		select * from `order` where orderNum=#{orderNum}
+	</select>
+	
+	<select id="findLastOrder" parameterType="java.lang.Integer" resultType="com.chinasoft.pojo.Order">
+		select * from `order` order by oid DESC limit 1;
+	</select>
+	
+	<select id="findOrderByUser" parameterType="java.lang.Integer" resultType="com.chinasoft.pojo.Order">
+		select * from `order` where uid=#{uid}
+	</select>
+	
+	<select id="findOrderPay" parameterType="java.lang.Integer" resultType="com.chinasoft.pojo.Order">
+		select * from `order` where isPay=#{isPay}
+	</select>
+	
+	<select id="findOrderShip" parameterType="java.lang.Integer" resultType="com.chinasoft.pojo.Order">
+		select * from `order` where isShip=#{isShip}
+	</select>
+	
+	<insert id="addOrder" useGeneratedKeys="true" keyProperty="oid"
+		parameterType="com.chinasoft.pojo.Order" >
+		insert into `order` (orderNum,uid,isPay,allPay,payTime,isShip,shipTime,createTime,updateTime,status) 
+		values (#{orderNum},#{uid},#{isPay},#{allPay},#{payTime},#{isShip},#{shipTime},#{createTime},#{updateTime},#{status})
+	</insert>
+	
+	<update id="changeOrder" 
+		parameterType="com.chinasoft.pojo.Order">
+			update `order` set orderNum=#{orderNum},uid=#{uid},isPay=#{isPay},allPay=#{allPay},
+			payTime=#{payTime},isShip=#{isShip},shipTime=#{shipTime},createTime=#{createTime},
+			updateTime=#{updateTime},status=#{status} 
+			where oid=#{oid}
+	</update>
+	
+	<update id="changeOrderPay" parameterType="java.lang.Integer">
+			update `order` set isPay=#{isPay} where oid=#{oid}
+	</update>
+	
+	<update id="changeOrderShip" parameterType="java.lang.Integer">
+			update `order` set isShip=#{isShip} where oid=#{oid}
+	</update>
+	
+	<delete id="deleteOrderById"  parameterType="java.lang.Integer">
+			delete from `order` where oid=#{oid}
+     </delete>
+     
+     <delete id="deleteOrderByUser" parameterType="java.lang.Integer">
+		delete from `order` where uid=#{uid}
+	</delete>
+	
+</mapper>

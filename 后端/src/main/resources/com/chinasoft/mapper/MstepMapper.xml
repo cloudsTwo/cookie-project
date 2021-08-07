@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasoft.mapper.MstepMapper">
+
+	<select id="findMenuSteps" parameterType="java.lang.Integer"
+		resultType="com.chinasoft.pojo.Mstep">
+		select * from mstep where mid=#{mid}
+	</select>
+	
+	<select id="findStepById" parameterType="java.lang.Integer"
+		resultType="com.chinasoft.pojo.Mstep">
+		select * from mstep where stepId = #{stepId}
+	</select>
+	
+	
+	<insert id="addOneStep" useGeneratedKeys="true" keyProperty="stepId"
+		parameterType="com.chinasoft.pojo.Mstep" >
+		insert into mstep (stepCount,imgUrl,description,mid) 
+		values (#{stepCount},#{imgUrl},#{description},#{mid})
+	</insert>
+	
+	<update id="changeOneStep" 
+		parameterType="com.chinasoft.pojo.Mstep">
+			update mstep set imgUrl=#{imgUrl},description=#{description} 
+			where stepId = #{stepId}
+	</update>
+	
+	<delete id="deleteMenuSteps"  parameterType="java.lang.Integer">
+			delete from mstep where mid=#{mid}
+    </delete>
+
+	<delete id="deleteStepById"  parameterType="java.lang.Integer">
+			delete from mstep where stepId = #{stepId}
+    </delete>
+	
+</mapper>

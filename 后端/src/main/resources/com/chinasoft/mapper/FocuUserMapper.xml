@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasoft.mapper.FocuUserMapper">
+
+	<select id="findFocuUserById" parameterType="java.lang.Integer" resultType="com.chinasoft.pojo.FocuUser">
+		select * from focu_user where id=#{id}
+	</select>
+	
+	<select id="findFocuUser" parameterType="java.lang.Integer" resultType="com.chinasoft.pojo.FocuUser">
+		select * from focu_user where uid=#{uid} and followId=#{followId}
+	</select>
+	
+	<select id="findFocuUserByFocu" parameterType="java.lang.Integer" resultType="com.chinasoft.pojo.FocuUser">
+		select * from focu_user where uid=#{uid}
+	</select>
+	
+	<select id="findFocuUserByFollow" parameterType="java.lang.Integer" resultType="com.chinasoft.pojo.FocuUser">
+		select * from focu_user where followId=#{followId}
+	</select>
+	
+	<select id="getFocuCount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		select count(*) from focu_user where uid=#{uid}
+	</select>
+	
+	<select id="getFollowCount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		select count(*) from focu_user where followId=#{followId}
+	</select>
+	
+	<insert id="addFocuUser" useGeneratedKeys="true" keyProperty="id"
+		parameterType="com.chinasoft.pojo.FocuUser" >
+		insert into focu_user (uid,followId,time) values (#{uid},#{followId},#{time})
+	</insert>
+	
+	<update id="changeFocuUser" 
+		parameterType="com.chinasoft.pojo.FocuUser">
+			update focu_user set uid=#{uid},followId=#{followId},time=#{time} 
+			where id=#{id}
+	</update>
+	
+	<delete id="deleteFocuUserById"  parameterType="java.lang.Integer">
+			delete from focu_user where id=#{id}
+     </delete>
+     
+     <delete id="deleteFocuUserByFocu"  parameterType="java.lang.Integer">
+			delete from focu_user where uid=#{uid}
+     </delete>
+     
+     <delete id="deleteFocuUserByFollow"  parameterType="java.lang.Integer">
+			delete from focu_user where followId=#{followId}
+     </delete>
+     
+     <delete id="deleteFocuUser"  parameterType="java.lang.Integer">
+			delete from focu_user where followId=#{followId} and uid=#{uid}
+     </delete>
+	
+</mapper>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasoft.mapper.CommentMapper">
+
+	<select id="findAllComments" resultType="com.chinasoft.pojo.Comment">
+		select * from comment
+	</select>
+	
+	<select id="findComment" parameterType="java.lang.Integer"
+		resultType="com.chinasoft.pojo.Comment">
+		select * from comment where uid=#{uid} and mid=#{mid}
+	</select>
+	
+	<select id="findMenuComment" parameterType="java.lang.Integer"
+		resultType="com.chinasoft.pojo.Comment">
+		select * from comment where mid=#{mid}
+	</select>
+	
+	
+	<select id="findUserComment" parameterType="java.lang.Integer"
+		resultType="com.chinasoft.pojo.Comment">
+		select * from comment where uid=#{uid}
+	</select>
+	
+	<insert id="addComment" useGeneratedKeys="true" keyProperty="cid"
+		parameterType="com.chinasoft.pojo.Comment" >
+		insert into comment (uid,mid,ccontent,ctime) 
+		values (#{uid},#{mid},#{ccontent},#{ctime})
+	</insert>
+	
+	<update id="changeComment" 
+		parameterType="com.chinasoft.pojo.Comment">
+			update comment set uid=#{uid},mid=#{mid},ccontent=#{ccontent},ctime=#{ctime} 
+			where cid=#{cid}
+	</update>
+	
+	<delete id="deleteCommentById"  parameterType="java.lang.Integer">
+			delete from comment where cid=#{cid}
+     </delete>
+     
+     <delete id="deleteComments" parameterType="java.lang.Integer">
+		delete from comment where mid=#{mid}
+	</delete>
+
+	<delete id="deleteComment"  parameterType="java.lang.Integer">
+			delete from comment where uid=#{uid} and mid=#{mid}
+     </delete>
+     
+     <delete id="deleteCommentByUser"  parameterType="java.lang.Integer">
+			delete from comment where uid=#{uid}
+     </delete>
+	
+</mapper>

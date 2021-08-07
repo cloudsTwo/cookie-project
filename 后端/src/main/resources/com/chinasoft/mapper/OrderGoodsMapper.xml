@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasoft.mapper.OrderGoodsMapper">
+
+	<select id="findOrderGoodsById" parameterType="java.lang.Integer" resultType="com.chinasoft.pojo.OrderGoods">
+		select * from order_goods where id=#{id}
+	</select>
+	
+	<select id="findOrderGoodsByOrder" parameterType="java.lang.Integer" resultType="com.chinasoft.pojo.OrderGoods">
+		select * from order_goods where oid=#{oid}
+	</select>
+	
+	<insert id="addOrderGoods" useGeneratedKeys="true" keyProperty="id"
+		parameterType="com.chinasoft.pojo.OrderGoods" >
+		insert into order_goods (oid,mid,count,singlePrice,address,status,createTime,updateTime,userName,phoneNumber)
+		values (#{oid},#{mid},#{count},#{singlePrice},#{address},#{status},#{createTime},#{updateTime},#{userName},#{phoneNumber})
+	</insert>
+	
+	<update id="changeOrderGoods" 
+		parameterType="com.chinasoft.pojo.OrderGoods">
+			update order_goods set oid=#{oid},mid=#{mid},count=#{count},singlePrice=#{singlePrice}, address=#{address},status=#{status},
+			createTime=#{createTime},updateTime=#{updateTime},userName=#{userName},phoneNumber=#{phoneNumber}
+			where id=#{id}
+	</update>
+	
+	<delete id="deleteOrderGoodsById"  parameterType="java.lang.Integer">
+		delete from order_goods where id=#{id}
+     </delete>
+     
+     <delete id="deleteOrderGoodsByOrder" parameterType="java.lang.Integer">
+		delete from order_goods where oid=#{oid}
+	</delete>
+	
+</mapper>

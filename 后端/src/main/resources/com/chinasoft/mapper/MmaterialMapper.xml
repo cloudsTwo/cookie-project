@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasoft.mapper.MmaterialMapper">
+
+	<select id="findMmaterial" parameterType="java.lang.Integer"
+		resultType="com.chinasoft.pojo.Mmaterial">
+		select * from mmaterial where mid=#{mid}
+	</select>
+	
+	<select id="findMmaterialById" parameterType="java.lang.Integer"
+		resultType="com.chinasoft.pojo.Mmaterial">
+		select * from mmaterial where mtId=#{mtId}
+	</select>
+	
+	<delete id="deleteMmaterials" parameterType="java.lang.Integer">
+		delete from mmaterial where mid=#{mid}
+	</delete>
+	
+	<delete id="deleteMmaterialById" parameterType="java.lang.Integer">
+		delete from mmaterial where mtId=#{mtId}
+	</delete>
+	
+	<insert id="addMmaterial" useGeneratedKeys="true" keyProperty="mtId"
+		parameterType="com.chinasoft.pojo.Mmaterial" >
+		insert into mmaterial (materialName,mamount,mid) 
+		values (#{materialName},#{mamount},#{mid})
+	</insert>
+	
+	<update id="changeMmaterial" 
+		parameterType="com.chinasoft.pojo.Mmaterial">
+			update mmaterial set materialName=#{materialName}, mamount=#{mamount},
+			mid=#{mid} where mtId=#{mtId}
+	</update>
+	
+</mapper>

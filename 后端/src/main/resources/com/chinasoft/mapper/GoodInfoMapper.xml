@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasoft.mapper.GoodInfoMapper">
+
+	<select id="findAllGoodInfo" parameterType="java.lang.Integer" resultType="com.chinasoft.pojo.GoodInfo">
+		select * from good_info
+	</select>
+
+	<select id="findGoodInfoById" parameterType="java.lang.Integer" resultType="com.chinasoft.pojo.GoodInfo">
+		select * from good_info where gid=#{gid}
+	</select>
+	
+	<select id="findGoodInfoByMenu" parameterType="java.lang.Integer" resultType="com.chinasoft.pojo.GoodInfo">
+		select * from good_info where mid=#{mid}
+	</select>
+	
+	<insert id="addGoodInfo" useGeneratedKeys="true" keyProperty="gid"
+		parameterType="com.chinasoft.pojo.GoodInfo" >
+		insert into good_info (mid,price,reserve,status,createTime,updateTime) 
+		values (#{mid},#{price},#{reserve},#{status},#{createTime},#{updateTime})
+	</insert>
+	
+	<update id="changeGoodInfo" 
+		parameterType="com.chinasoft.pojo.GoodInfo">
+			update good_info set mid=#{mid},price=#{price},reserve=#{reserve},status=#{status},
+			createTime=#{createTime},updateTime=#{updateTime} 
+			where gid=#{gid}
+	</update>
+	
+	<delete id="deleteGoodInfoById"  parameterType="java.lang.Integer">
+			delete from good_info where id=#{id}
+     </delete>
+     
+     <delete id="deleteGoodInfoByMenu" parameterType="java.lang.Integer">
+		delete from good_info where mid=#{mid}
+	</delete>
+	
+</mapper>

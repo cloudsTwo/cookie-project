@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasoft.mapper.CollectMapper">
+
+	<select id="findCollect" parameterType="java.lang.Integer"
+		resultType="com.chinasoft.pojo.Collect">
+		select * from collect where uid=#{uid} and mid=#{mid}
+	</select>
+	
+	<select id="findCollectByUser" parameterType="java.lang.Integer"
+		resultType="com.chinasoft.pojo.Collect">
+		select * from collect where uid=#{uid}
+	</select>
+	
+	
+	<insert id="addCollect" 
+		parameterType="com.chinasoft.pojo.Collect" >
+		insert into collect (mid,uid,time) 
+		values (#{mid},#{uid},#{time})
+	</insert>
+	
+	<delete id="deleteCollects" parameterType="java.lang.Integer">
+		delete from collect where mid=#{mid}
+	</delete>
+
+	<delete id="deleteCollect"  parameterType="java.lang.Integer">
+			delete from collect where mid=#{mid} and uid=#{uid}
+     </delete>
+     
+     <delete id="deleteCollectByUser" parameterType="java.lang.Integer">
+		delete from collect where uid=#{uid}
+	</delete>
+	
+</mapper>

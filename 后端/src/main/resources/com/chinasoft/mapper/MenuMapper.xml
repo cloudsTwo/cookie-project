@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasoft.mapper.MenuMapper">
+
+	<select id="findMenuById" parameterType="java.lang.Integer"
+		resultType="com.chinasoft.pojo.Menu">
+		select * from menu where mid=#{mid}
+	</select>
+	
+	<select id="findMenuByName" parameterType="java.lang.String"
+		resultType="com.chinasoft.pojo.Menu">
+		select * from menu where mname=#{mname} 
+	</select>
+	
+	<select id="findMenuByUser" parameterType="java.lang.Number"
+		resultType="com.chinasoft.pojo.Menu">
+		select * from menu where uid=#{uid} 
+	</select>
+	
+	<select id="findAllMenu" resultType="com.chinasoft.pojo.Menu">
+		select * from menu
+	</select>
+	
+	<select id="findCheckedMenu" parameterType="java.lang.Number" resultType="com.chinasoft.pojo.Menu">
+		select * from menu where isChecked=#{isChecked};
+	</select>
+	
+	<select id="findCheckedMenuByName" parameterType="com.chinasoft.pojo.Menu" resultType="com.chinasoft.pojo.Menu">
+		select * from menu where isChecked=#{isChecked} and mname=#{mname};
+	</select>
+
+	
+	<select id="findLastMenu" resultType="com.chinasoft.pojo.Menu">
+		select * from menu order by mid DESC limit 1;
+	</select>
+	
+	<insert id="addMenu" useGeneratedKeys="true" keyProperty="mid" 
+	 	parameterType="com.chinasoft.pojo.Menu" >
+		insert into menu (uid,mname,reportTime,description,desImg,tips,prepareTime,cookieTime,
+			flavour,hard,isSelf,collectCount,likeCount,views, isChecked) 
+		values (#{uid},#{mname},#{reportTime},#{description},
+			#{desImg},#{tips},#{prepareTime},#{cookieTime},#{flavour},
+			#{hard},#{isSelf},#{collectCount},#{likeCount},#{views}, #{isChecked})
+	</insert>
+	
+	<update id="changeMenu" 
+		parameterType="com.chinasoft.pojo.Menu">
+			update menu set uid=#{uid},mname=#{mname},reportTime=#{reportTime},description=#{description},
+			desImg=#{desImg},tips=#{tips},prepareTime=#{prepareTime},cookieTime=#{cookieTime},flavour=#{flavour},
+			hard=#{hard},isSelf=#{isSelf},collectCount=#{collectCount},likeCount=#{likeCount},views=#{views}, isChecked=#{isChecked}  
+			where mid=#{mid}
+	</update>
+	
+	<update id="changeMenuView" 
+		parameterType="java.lang.Number">
+			update menu set views=#{views}   
+			where mid=#{mid}
+	</update>
+	
+	<update id="checkMenu" 
+		parameterType="java.lang.Number">
+			update menu set isChecked=1   
+			where mid=#{mid}
+	</update>
+	
+	<update id="changeMenuCollect" 
+		parameterType="java.lang.Number">
+			update menu set collectCount=#{collectCount}   
+			where mid=#{mid}
+	</update>
+	
+	<update id="changeMenuLike" 
+		parameterType="java.lang.Number">
+			update menu set likeCount=#{likeCount}   
+			where mid=#{mid}
+	</update>
+
+	<delete id="deleteMenu"  >
+			delete from menu where mid=#{arg0}
+     </delete>
+     
+     <delete id="deleteMenuByUser"  >
+			delete from menu where uid=#{arg0}
+     </delete>
+	
+</mapper>
